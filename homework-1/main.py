@@ -1,9 +1,10 @@
 """Скрипт для заполнения данными таблиц в БД Postgres."""
 import psycopg2
 import csv
+import os
+from pathlib import Path
 
-from key_postgres import password
-
+password = os.getenv('postgres_password')
 # Establish a connection to the PostgreSQL database
 conn = psycopg2.connect(
     host="localhost",
@@ -18,10 +19,8 @@ def data_record_db(csv_file_path, table_name):
     # Open the CSV file and read its contents
     with open(csv_file_path, 'r') as f:
         csv_reader = csv.reader(f)
-        # next(csv_reader) # skip header row
-
-        # Define the query to insert data into the table
-        insert_query = f"INSERT INTO {table_name} VALUES ({','.join(['%s']*len(next(csv_reader)))})"
+        # Define the query to insert data into the table # next(csv_reader) # skip header row
+        insert_query = f"INSERT INTO {table_name} VALUES ({','.join(['%s'] * len(next(csv_reader)))})"
 
         # Iterate over the CSV rows and execute the insert query for each row
         for row in csv_reader:
@@ -33,14 +32,15 @@ def data_record_db(csv_file_path, table_name):
     # Close the cursor and connection
     cur.close()
 
+
 # Define the path to the CSV file and the name of the table to load it into
-csv_file_path_customers = "./north_data\customers_data.csv"
+csv_file_path_customers = Path("north_data", "customers_data.csv")
 table_name_customers = "customers"
 
-csv_file_path_employees_data = "./north_data\employees_data.csv"
+csv_file_path_employees_data = Path("north_data", "employees_data.csv")
 table_name_employees_data = "employees"
 
-csv_file_path_orders_data = "./north_data\orders_data.csv"
+csv_file_path_orders_data = Path("north_data", "orders_data.csv")
 table_name_orders_data = "orders"
 
 data_record_db(csv_file_path_customers, table_name_customers)
